@@ -18,6 +18,7 @@ def are_valid_packages(packages):
 
 
 def verify_packages(packages):
+    return
     if not packages:
         return
     if isinstance(packages, str):

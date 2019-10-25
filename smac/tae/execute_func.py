@@ -4,7 +4,7 @@ import math
 import time
 
 import numpy as np
-import pynisher
+# import pynisher
 
 from smac.tae.execute_ta_run import StatusType, ExecuteTARun
 from smac.utils.constants import MAXINT
@@ -28,11 +28,11 @@ class AbstractTAFunc(ExecuteTARun):
     use_pynisher
     """
 
-    def __init__(self, ta, stats=None, runhistory=None, run_obj:str="quality",
-                 memory_limit:int=None, par_factor:int=1,
-                 cost_for_crash:float=float(MAXINT),
-                 abort_on_first_run_crash: bool=False,
-                 use_pynisher:bool=True):
+    def __init__(self, ta, stats=None, runhistory=None, run_obj: str = "quality",
+                 memory_limit: int = None, par_factor: int = 1,
+                 cost_for_crash: float = float(MAXINT),
+                 abort_on_first_run_crash: bool = False,
+                 use_pynisher: bool = False):
 
         super().__init__(ta=ta, stats=stats, runhistory=runhistory,
                          run_obj=run_obj, par_factor=par_factor,
@@ -73,7 +73,7 @@ class AbstractTAFunc(ExecuteTARun):
         if memory_limit is not None:
             memory_limit = int(math.ceil(memory_limit))
         self.memory_limit = memory_limit
-        
+
         self.use_pynisher = use_pynisher
 
     def run(self, config, instance=None,
@@ -134,16 +134,16 @@ class AbstractTAFunc(ExecuteTARun):
         if self.use_pynisher:
 
             obj = pynisher.enforce_limits(**arguments)(self.ta)
-    
+
             rval = self._call_ta(obj, config, **obj_kwargs)
-    
+
             if isinstance(rval, tuple):
                 result = rval[0]
                 additional_run_info = rval[1]
             else:
                 result = rval
                 additional_run_info = {}
-    
+
             if obj.exit_status is pynisher.TimeoutException:
                 status = StatusType.TIMEOUT
                 cost = self.crash_cost
@@ -156,30 +156,31 @@ class AbstractTAFunc(ExecuteTARun):
             else:
                 status = StatusType.CRASHED
                 cost = self.crash_cost
-        
+
             runtime = float(obj.wall_clock_time)
         else:
             start_time = time.time()
-            result = self.ta(config, **obj_kwargs)
-            
-            if result is not None:
-                status = StatusType.SUCCESS
-                cost = result
-            else:
-                status = StatusType.CRASHED
-                cost = self.crash_cost
-            
-            runtime = time.time() - start_time
-            additional_run_info = {}
+            # result = self.ta(config, **obj_kwargs)
+            result = self.ta(list(config.get_dictionary().values()))
+
+        if result is not None:
+            status = StatusType.SUCCESS
+            cost = result
+        else:
+            status = StatusType.CRASHED
+            cost = self.crash_cost
+
+        runtime = time.time() - start_time
+        additional_run_info = {}
 
         return status, cost, runtime, additional_run_info
 
-    def _call_ta(self, obj, config, instance, seed):
-        raise NotImplementedError()
+
+def _call_ta(self, obj, config, instance, seed):
+    raise NotImplementedError()
 
 
 class ExecuteTAFuncDict(AbstractTAFunc):
-
     """Evaluate function for given configuration and resource limit.
 
     Passes the configuration as a dictionary to the target algorithm. The
@@ -213,7 +214,6 @@ class ExecuteTAFuncDict(AbstractTAFunc):
     """
 
     def _call_ta(self, obj, config, **kwargs):
-
         return obj(config, **kwargs)
 
 
@@ -251,7 +251,6 @@ class ExecuteTAFuncArray(AbstractTAFunc):
     """
 
     def _call_ta(self, obj, config, **kwargs):
-
         x = np.array([val for _, val in sorted(config.get_dictionary().items())],
                      dtype=np.float)
         return obj(x, **kwargs)

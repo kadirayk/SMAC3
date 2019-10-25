@@ -42,6 +42,7 @@ class TrajLogger(object):
         stats: Stats()
             Stats object
         """
+        output_dir = output_dir.replace(":", "-")
         self.stats = stats
         self.logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
 

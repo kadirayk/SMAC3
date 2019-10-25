@@ -36,6 +36,7 @@ class OutputWriter(object):
             scenario.logger.debug("Output directory does not exist! Will be "
                                   "created.")
             try:
+                scenario.output_dir_for_this_run = scenario.output_dir_for_this_run.replace(":", "-")
                 os.makedirs(scenario.output_dir_for_this_run)
             except OSError:
                 scenario.logger.debug("Could not make output directory.", exc_info=1)

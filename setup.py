@@ -37,6 +37,5 @@ setup(
     author=get_author(),
     version=get_version(),
     test_suite="nose.collector",
-    tests_require=["mock", "nose"],
-    long_description_content_type='text/markdown',
+    tests_require=["mock", "nose"]
 )

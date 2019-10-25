@@ -353,6 +353,7 @@ class RunHistory(object):
         save_external : bool
             Whether to save external data in the runhistory file.
         """
+        fn = fn.replace(":", "-")
         data = [([int(k.config_id),
                   str(k.instance_id) if k.instance_id is not None else None,
                   int(k.seed)], list(v))
